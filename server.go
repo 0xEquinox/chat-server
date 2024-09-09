@@ -3,13 +3,20 @@ package main
 import (
 	"fmt"
 	"net"
+
+	"github.com/vmihailenco/msgpack/v5"
 )
+
+type Room struct {
+	id int
+}
 
 type Server struct {
 	listenAddr string
 	ln         net.Listener
 	quitch     chan struct{}
 	msgch      chan Message
+	rooms      []Room
 }
 
 func newServer(listenAddr string) *Server {
@@ -17,6 +24,7 @@ func newServer(listenAddr string) *Server {
 		listenAddr: listenAddr,
 		quitch:     make(chan struct{}),
 		msgch:      make(chan Message, 10),
+		rooms:      make([]Room, 2048),
 	}
 }
 
@@ -93,7 +101,7 @@ func (s *Server) handeCommands() {
 
 		case CreateRoom:
 			// Handle the CreateRoom command
-			roomName := string(msg.command.payload)
+			roomName := msgpack.RawMessage(msg.command.payload)
 			fmt.Printf("Creating room: %s by %s\n", roomName, msg.sender)
 			// Implement room creation logic here
 
