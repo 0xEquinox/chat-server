@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	//"github.com/vmihailenco/msgpack/v5"
+)
 
 func parseCommand(message []byte) (Command, error) {
 	if len(message) < 1 {
@@ -51,4 +54,8 @@ func parseCommand(message []byte) (Command, error) {
 	default:
 		return Command{}, fmt.Errorf("unknown command type: %d", ctype)
 	}
+}
+
+func parseMsgpack(payload []byte) error {
+	return nil
 }

@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"net"
-
-	"github.com/vmihailenco/msgpack/v5"
+	//"github.com/vmihailenco/msgpack/v5"
 )
 
 type Room struct {
-	id int
+	id      int
+	name    string
+	clients map[net.Conn]struct{}
+	msgch   chan []byte
 }
 
 type Server struct {
@@ -16,7 +18,7 @@ type Server struct {
 	ln         net.Listener
 	quitch     chan struct{}
 	msgch      chan Message
-	rooms      []Room
+	rooms      map[int]*Room
 }
 
 func newServer(listenAddr string) *Server {
@@ -24,7 +26,6 @@ func newServer(listenAddr string) *Server {
 		listenAddr: listenAddr,
 		quitch:     make(chan struct{}),
 		msgch:      make(chan Message, 10),
-		rooms:      make([]Room, 2048),
 	}
 }
 
@@ -101,16 +102,27 @@ func (s *Server) handeCommands() {
 
 		case CreateRoom:
 			// Handle the CreateRoom command
-			roomName := msgpack.RawMessage(msg.command.payload)
-			fmt.Printf("Creating room: %s by %s\n", roomName, msg.sender)
-			// Implement room creation logic here
-
-		case Join:
-			// Handle the Join command
 			roomName := string(msg.command.payload)
-			fmt.Printf("%s is joining room: %s\n", msg.sender, roomName)
-			// Implement join logic here
-
+			id := len(s.rooms)
+			if _, exists := s.rooms[id]; !exists {
+				s.rooms[id] = &Room{
+					name:    roomName,
+					clients: make(map[net.Conn]struct{}),
+					msgch:   make(chan []byte, 10),
+				}
+				fmt.Printf("Room %s created by %s\n", roomName, msg.sender)
+			} else {
+				fmt.Printf("Room %s already exists\n", roomName)
+			}
+		case Join:
+			roomID := int(msg.command.payload[0])
+			room, exists := s.rooms[roomID]
+			if exists {
+				room.clients[conn] = struct{}{}
+				fmt.Printf("%s joined room %s\n", msg.sender, roomName)
+			} else {
+				fmt.Printf("Room %s does not exist\n", roomName)
+			}
 		case Leave:
 			// Handle the Leave command
 			roomName := string(msg.command.payload)

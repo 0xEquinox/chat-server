@@ -1,0 +1,45 @@
+#+title: Web Chat Standard
+
+* Introduction
+This reason for this chat protocol is for communication of people over internet.
+* Functionality
+** Priority A
+*** Rooms
+*** Direct Messages
+*** Messages
+**** Types
+***** Text
+***** File
+** Priority B
+*** Authentication
+** Priority C
+*** Encryption
+*** Permissions
+**** Admin Stuff
+*** Avatars
+** Priority D
+*** P2P File Sharing
+**** Ideas
++ Unique message type, with ID that links to file
+*** Notes on other users
+* Commands
+** Capabilities
+** Join
+** Leave
+** Subscribe
+*** New
+*** All
+** Unsubscribe
+** List
+*** Rooms
+** Room Info
+*** Members
+*** ID
+** Send
+** Delete
+** Edit
+** Create
+*** Direct Chat
+*** Room
+** Acknowledge
+** Test
